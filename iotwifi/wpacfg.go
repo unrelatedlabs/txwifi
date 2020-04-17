@@ -125,6 +125,19 @@ rsn_pairwise=CCMP`
 	}
 }
 
+// StartAP starts AP mode.
+func (wpa *WpaCfg) RemoveAP() {
+	wpa.Log.Info("Remove AP")
+
+	command := &Command{
+		Log:      wpa.Log,
+		SetupCfg: wpa.WpaCfg,
+	}
+
+	command.RemoveApInterface()
+}
+
+
 // ConfiguredNetworks returns a list of configured wifi networks.
 func (wpa *WpaCfg) ConfiguredNetworks() string {
 	netOut, err := exec.Command("wpa_cli", "-i", "wlan0", "scan").Output()

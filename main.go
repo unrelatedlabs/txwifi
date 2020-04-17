@@ -12,7 +12,7 @@ import (
 	"github.com/bhoriuchi/go-bunyan/bunyan"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/txn2/txwifi/iotwifi"
+	"github.com/unrelatedlabs/txwifi/iotwifi"
 )
 
 // ApiReturn structures a message for returned API calls.
@@ -174,6 +174,26 @@ func main() {
 		w.Write(ret)
 	}
 
+	// kill the application
+	removeHandler := func(w http.ResponseWriter, r *http.Request) {
+		
+		wpacfg.RemoveAP()
+
+		apiReturn := &ApiReturn{
+			Status:  "OK",
+			Message: "Removing ap.",
+		}
+		ret, err := json.Marshal(apiReturn)
+		if err != nil {
+			retError(w, err)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(ret)
+	}
+
+
 	// common log middleware for api
 	logHandler := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -196,6 +216,7 @@ func main() {
 	r.HandleFunc("/connect", connectHandler).Methods("POST")
 	r.HandleFunc("/scan", scanHandler)
 	r.HandleFunc("/kill", killHandler)
+	r.HandleFunc("/removeap", removeHandler)
 	http.Handle("/", r)
 
 	// CORS
